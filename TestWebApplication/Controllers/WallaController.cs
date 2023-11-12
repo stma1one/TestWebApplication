@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjectBL.Models;
+using System.Text.Json;
 
 namespace TestWebApplication.Controllers
 {
@@ -54,6 +55,71 @@ namespace TestWebApplication.Controllers
             if (u != null) { return Ok(u.Email); }
 
             return NotFound();
+        }
+
+        //העלאה של קובץ
+        //id- מזהה רשומה מהדאטבייס
+        [Route("UploadImage")]
+        [HttpPost]
+        public async Task<IActionResult> UploadImage([FromQuery]int Id,IFormFile file)
+        {
+
+            User u = this.context.Users.Find(Id);
+            
+
+            //check file size
+            if (file.Length > 0)
+            {
+                // Generate unique file name
+                string fileName = $"{u.Id}{Path.GetExtension(file.FileName)}";
+
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+                try
+                {
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    return Ok();
+                }
+                catch(Exception ex) { Console.WriteLine(ex.Message); }
+            }
+
+            return BadRequest();
+        }
+
+        //כשרוצים קובץ וגם אובייקט
+        //היוזר מגיע בפורמט json
+        [Route("UploadFile")]
+        [HttpPost]
+        public async Task<IActionResult> UploadFile(IFormFile file,[FromForm]string user)
+        {
+
+            User? p=JsonSerializer.Deserialize<User>(user);  
+            User? u = this.context.Users.Find(p.Id);
+
+
+            //check file size
+            if (file.Length > 0)
+            {
+                // Generate unique file name
+                string fileName = $"{u.Id}{Path.GetExtension(file.FileName)}";
+
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", fileName);
+                try
+                {
+                    using (var fileStream = new FileStream(path, FileMode.Create))
+                    {
+                        file.CopyTo(fileStream);
+                    }
+
+                    return Ok();
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+            }
+
+            return BadRequest();
         }
 
     }

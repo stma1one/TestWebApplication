@@ -58,9 +58,6 @@ namespace TestWebApplication
             }
 
             app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
             #region Use FILES And Session
             //use files 
             app.UseStaticFiles();
@@ -69,6 +66,9 @@ namespace TestWebApplication
             app.UseSession();
             #endregion
             #endregion
+
+            app.UseAuthorization();
+
 
             app.MapControllers();
 
